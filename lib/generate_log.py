@@ -1,19 +1,59 @@
-from datetime import datetime
 import os
+import requests
+from datetime import datetime
 
-def generate_log(data):
-    # TODO: Implement log generation logic
+def generate_log(log_data):
+    """
+    Writes a list of log entries to a timestamped file.
+    
+    Args:
+        log_data (list): A list of strings representing log entries.
+        
+    Returns:
+        str: The name of the generated log file.
+    """
+    # Raise ValueError if input is not a list
+    if not isinstance(log_data, list):
+        raise ValueError("Input must be a list of log entries.")
 
-    # STEP 1: Validate input
-    # Hint: Check if data is a list
+    # Format the filename with today's date
+    today = datetime.now().strftime("%Y%m%d")
+    filename = f"log_{today}.txt"
 
-    # STEP 2: Generate a filename with today's date (e.g., "log_20250408.txt")
-    # Hint: Use datetime.now().strftime("%Y%m%d")
+    # Write data to the log file (File I/O)
+    with open(filename, "w") as file:
+        for entry in log_data:
+            file.write(f"{entry}\n")
 
-    # STEP 3: Write the log entries to a file using File I/O
-    # Use a with open() block and write each line from the data list
-    # Example: file.write(f"{entry}\n")
+    # Print confirmation message
+    print(f"Log written to {filename}")
 
-    # STEP 4: Print a confirmation message with the filename
+    return filename
 
-    pass
+def fetch_data():
+    """Fetches sample data using the external 'requests' library."""
+    try:
+        response = requests.get("https://jsonplaceholder.typicode.com/posts/1")
+        if response.status_code == 200:
+            return response.json()
+    except requests.RequestException as e:
+        print(f"Network error occurred: {e}")
+    return {}
+
+# Modular execution block
+if __name__ == "__main__":
+    print("Executing script from command line...")
+    
+    # Use third-party package to collect data
+    post = fetch_data()
+    post_title = post.get("title", "No title found")
+    
+    # Create log entries combining static text and fetched data
+    daily_logs = [
+        "System automation started.",
+        f"Successfully fetched API post title: '{post_title}'",
+        "System automation finished without errors."
+    ]
+    
+    # Generate the log file
+    log_file = generate_log(daily_logs)
